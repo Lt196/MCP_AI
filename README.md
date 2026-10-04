@@ -1,33 +1,19 @@
 # 小智本地 MCP：飞书待办入库
 
-将语音或对话中的待办事项写入飞书多维表格的 MCP 服务。
-
 ## 安装
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-Copy-Item .env.example .env
-```
 
-编辑 `.env`，填写飞书应用凭据和多维表格信息。`.env` 是本地私密配置，不要提交或分享；`.gitignore` 已将其排除。也可以直接通过系统环境变量配置。
+## 配置（环境变量，建议写进启动脚本或 .env 后 source）
+export FEISHU_APP_ID=cli_xxx
+export FEISHU_APP_SECRET=xxx
+export FEISHU_APP_TOKEN=bascnXXX            # 多维表格链接里的 base/app token；wiki 链接要先 get_node 换 obj_token
+export FEISHU_TABLE_ID=tblXXX               # 表格 URL 里 table= 后面的值
+# 字段名必须与表里列名一字不差，不一致就覆盖：
+# export FIELD_TITLE=任务内容 FIELD_RAW=原始语音 FIELD_DUE=截止日期 FIELD_PRIO=优先级 FIELD_SOURCE=来源 FIELD_REQID=请求ID
+# 可选：export SERPAPI_KEY=xxx   （更稳的搜索；不配则走 DuckDuckGo lite）
 
-| 变量 | 说明 |
-| --- | --- |
-| `FEISHU_APP_ID` | 飞书自建应用 App ID |
-| `FEISHU_APP_SECRET` | 飞书自建应用 App Secret |
-| `FEISHU_APP_TOKEN` | 多维表格 app token；wiki 链接需先通过 `get_node` 获取 `obj_token` |
-| `FEISHU_TABLE_ID` | 多维表格中的表格 ID |
-| `FIELD_RAW` | 原始语音对应的列名，默认 `原始语音` |
-| `FIELD_TITLE`、`FIELD_DUE`、`FIELD_PRIO`、`FIELD_SOURCE`、`FIELD_REQID` | 可选列名映射，必须与表格列名一致 |
-## 运行
-
-```powershell
-python server.py
-```
-
-服务通过 stdio 提供 MCP，运行期间保持进程开启。
+## 跑起来
+python server.py        # stdio，保持常驻
 
 ## 小智侧接线
 1. xiaozhi.me 控制台 → 智能体 → 配置角色 → 右下角复制该智能体的 MCP 接入点/启动命令。
@@ -40,10 +26,6 @@ python server.py
 - 建议加一列“请求ID”文本字段做幂等去重；日期列是日期类型，写入的是毫秒时间戳。
 
 ## 验证顺序
-运行自动化测试：
-
-```powershell
-.\run_tests.cmd
-```
-
-配置飞书后，可通过小智语音创建待办，并在飞书表格中确认结果。
+1. 本地直接 python -c 调 feishu_create_record 验证 token 和字段；
+2. 用小智语音说一条待办，看服务端日志里 add_todo 的入参；
+3. 飞书表格确认记录，再测 web_search。
