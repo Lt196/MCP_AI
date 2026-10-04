@@ -1,0 +1,9 @@
+# 测试依赖。安装：
+#   venv\Scripts\python.exe -m pip install -r requirements.txt -r requirements-dev.txt
+pytest>=8.0
+
+# 下面这些是 server.py / mcp_pipe.py 的运行时依赖，列在这里方便一次性装齐
+mcp>=1.2.0
+requests>=2.31
+websockets>=11.0
+python-dotenv>=1.0
